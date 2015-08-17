@@ -1,0 +1,222 @@
+<?php
+/**
+ * Implements hook_help().
+ */
+function devel_catcher_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#devel_catcher':
+      $output = '<h3>' . t('NOTHING HERE YET') . '</h3>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function devel_catcher_permission() {
+  return array(
+    'access devel_catcher' => array(
+      'title' => t('Access the devel_catcher toolbar'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function devel_catcher_theme($existing, $type, $theme, $path) {
+  $items['devel_catcher'] = array(
+    'render element' => 'devel_catcher',
+    'template' => 'devel_catcher',
+    'path' => drupal_get_path('module', 'devel_catcher'),
+  );
+  $items['devel_catcher_toggle'] = array(
+    'variables' => array(
+      'collapsed' => NULL,
+      'attributes' => array(),
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function devel_catcher_menu() {
+  $items['devel_catcher/toggle'] = array(
+    'title' => 'Toggle drawer visibility',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'devel_catcher_toggle_page',
+    'access arguments' => array('access devel_catcher'),
+  );
+
+  $items['devel_catcher/block/%/%'] = array(
+    'page callback' => 'devel_catcher_block_content',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access devel_catcher'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Formats an element used to toggle the toolbar drawer's visibility.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - collapsed: A boolean value representing the toolbar drawer's visibility.
+ *   - attributes: An associative array of HTML attributes.
+ * @return
+ *   An HTML string representing the element for toggling.
+ *
+ * @ingroup themable
+ */
+function theme_devel_catcher_toggle($variables) {
+  if ($variables['collapsed']) {
+    $toggle_text = t('Show devel catcher');
+  }
+  else {
+    $toggle_text = t('Hide devel_catcher');
+    $variables['attributes']['class'][] = 'toggle-active';
+  }
+  return l($toggle_text, 'devel_catcher/toggle', array('query' => drupal_get_destination(), 'attributes' => array('title' => $toggle_text) + $variables['attributes']));
+}
+
+/**
+ * Determines the current state of the toolbar drawer's visibility.
+ *
+ * @return
+ *   TRUE when drawer is collapsed, FALSE when it is expanded.
+ */
+function _devel_catcher_is_collapsed() {
+  // PHP converts dots into underscores in cookie names to avoid problems with
+  // its parser, so we use a converted cookie name.
+  return isset($_COOKIE['Drupal_devel_catcher_collapsed']) ? $_COOKIE['Drupal_devel_catcher_collapsed'] : 0;
+}
+
+/**
+ * Implements hook_page_build().
+ *
+ * Add devel_catcher toolbar to the page_bottom region automatically.
+ */
+function devel_catcher_page_build(&$page) {
+  if (variable_get('dev_mem', FALSE) || variable_get('dev_timer', FALSE) || variable_get('devel_query_display', FALSE)) {
+
+    if (function_exists('context_get') && variable_get('devel_catcher_context_inspector', TRUE)) {
+      $context = context_get();
+      $context_output = kdevel_print_object($context);
+      drupal_add_js(array('devel_catcher' => array('context_output' => $context_output)), 'setting');
+    }
+
+    if (function_exists('devel_node_access_block_view') && arg(0) == 'node' && variable_get('devel_catcher_node_access_inspector', TRUE)) {
+
+      $block = module_invoke('devel_node_access', 'block_view', 'dna_node');
+      drupal_add_js(array('devel_catcher' => array('node_access_output' => render($block['content']))), 'setting');
+      /*
+      // Prototype populating tabs via AJAX.
+      drupal_add_js(array('devel_catcher' => array('node_access_output' => TRUE)), 'setting');
+      */
+    }
+
+    $page['page_bottom']['devel_catcher'] = array(
+      '#pre_render' => array('devel_catcher_pre_render'),
+      '#access' => user_access('access devel_catcher'),
+      'devel_catcher_drawer' => array(),
+    );
+  }
+}
+
+/**
+ * Prerender function for the toolbar.
+ *
+ * Since building the toolbar takes some time, it is done just prior to
+ * rendering to ensure that it is built only if it will be displayed.
+ */
+function devel_catcher_pre_render($devel_catcher) {
+  $devel_catcher = array_merge($devel_catcher, devel_catcher_view());
+  return $devel_catcher;
+}
+
+/**
+ * Implements hook_preprocess_html().
+ *
+ * Add some page classes, so global page theming can adjust to the toolbar.
+ */
+function devel_catcher_preprocess_html(&$vars) {
+  if (isset($vars['page']['page_bottom']['devel_catcher']) && user_access('access devel_catcher')) {
+    $vars['classes_array'][] = 'devel_catcher';
+    if (!_devel_catcher_is_collapsed()) {
+      $vars['classes_array'][] = 'devel_catcher-drawer';
+    }
+  }
+}
+
+/**
+ * Implements hook_system_info_alter().
+ *
+ * Indicate that the 'page_top' region (in which the toolbar will be displayed)
+ * is an overlay supplemental region that should be refreshed whenever its
+ * content is updated.
+ *
+ * This information is provided for any module that might need to use it, not
+ * just the core Overlay module.
+ */
+function devel_catcher_system_info_alter(&$info, $file, $type) {
+  if ($type == 'theme') {
+    $info['overlay_supplemental_regions'][] = 'page_bottom';
+  }
+}
+
+/**
+ * Build the admin menu as a structured array ready for drupal_render().
+ */
+function devel_catcher_view() {
+  global $user;
+
+  $module_path = drupal_get_path('module', 'devel_catcher');
+  $build = array(
+    '#theme' => 'devel_catcher',
+    '#attached'=> array(
+      'js' => array(
+        $module_path . '/devel_catcher.js',
+        $module_path . '/sortelement.jquery.js',
+      ),
+      'css' => array(
+        $module_path . '/devel_catcher.css',
+      ),
+      'library' => array(array('system', 'jquery.cookie')),
+    ),
+  );
+
+  // Prepare the tabs and classes
+
+
+  // Prepare the drawer links CSS classes.
+  $devel_catcher_drawer_classes = array(
+    'devel_catcher-drawer',
+    'clearfix',
+  );
+
+  if(_devel_catcher_is_collapsed()) {
+    $devel_catcher_drawer_classes[] = 'collapsed';
+  }
+  $build['devel_catcher_drawer_classes'] = implode(' ', $devel_catcher_drawer_classes);
+
+  // Add an anchor to be able to toggle the visibility of the drawer.
+  $build['devel_catcher_toggle'] = array(
+    '#theme' => 'devel_catcher_toggle',
+    '#collapsed' => _devel_catcher_is_collapsed(),
+    '#attributes' => array('class' => array('toggle')),
+  );
+
+  return $build;
+}
+
+function devel_catcher_block_content($module, $delta) {
+  //$_SERVER['HTTP_USER_AGENT'] = 'ApacheBench';
+  $block = module_invoke($module, 'block_view', $delta);
+  if (is_array($block)) {
+    print render($block['content']);
+  }
+  exit;
+}

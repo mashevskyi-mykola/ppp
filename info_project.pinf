@@ -1,0 +1,25 @@
+PAGES
+1 main page
+2 user page
+3 voting page
+4 search users page
+5 voting list
+6 my votings
+
+CONTENT TYPES
+1 Voting:
+  title
+  description
+  1st position
+  2nd position
+  vote
+  max voters
+  winner
+
+USER FIELDS
+1 name
+2 second name
+3 email
+4 country
+5 city
+password6274387594

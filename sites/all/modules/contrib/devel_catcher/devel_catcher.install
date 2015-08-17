@@ -1,0 +1,10 @@
+<?php
+function devel_catcher_enable() {
+  $devel_execution = variable_get('devel_execution');
+  $devel_query_display = variable_get('devel_query_display');
+  $dev_mem = variable_get('dev_mem');
+
+  if(!$devel_execution && !$devel_query_display && !$dev_mem) {
+    drupal_set_message(t('To make use of Devel Catcher, you\'ll want to enable either the <em>Display Query Log</em>, <em>Display page timer</em> or <em>Display memory usage</em> options at ') . l('admin/config/development/devel', 'admin/config/development/devel'), 'status');
+  }
+}

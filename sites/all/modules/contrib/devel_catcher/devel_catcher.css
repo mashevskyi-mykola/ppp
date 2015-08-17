@@ -1,0 +1,200 @@
+body.devel_catcher {
+  padding-bottom: 2.2em;
+}
+/*body.devel_catcher-drawer {
+  padding-bottom: 10.3em;
+}*/
+
+/**
+ * Aggressive resets so we can achieve a consistent look in hostile CSS
+ * environments.
+ */
+#devel_catcher,
+#devel_catcher .devel_catcher-menu * {
+  border: 0;
+  font-size: 100%;
+  line-height: inherit;
+  list-style: none;
+  margin: 0;
+  outline: 0;
+  padding: 0;
+  text-align: left; /* LTR */
+  vertical-align: baseline;
+}
+
+/**
+ * Base styles.
+ *
+ * We use a keyword for the toolbar font size to make it display consistently
+ * across different themes, while still allowing browsers to resize the text.
+ */
+#devel_catcher {
+  background: #666;
+  color: #ccc;
+  font: normal small "Lucida Grande", Verdana, sans-serif;
+  left: 0;
+  margin: 0 -20px;
+  padding: 0 20px;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  -moz-box-shadow: 0 3px 20px #000;
+  -webkit-box-shadow: 0 3px 20px #000;
+  box-shadow: 0 3px 20px #000;
+  filter: progid:DXImageTransform.Microsoft.Shadow(color=#000000, direction='180', strength='10');
+  -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(color=#000000, direction='180', strength='10')";
+  z-index: 600;
+}
+
+#devel_catcher div.collapsed {
+  display: none;
+  visibility: hidden;
+}
+
+#devel_catcher a.toggle {
+  background: url(devel_catcher.png) -1px 0 no-repeat;
+  top: 0;
+  cursor: pointer;
+  height: 25px;
+  overflow: hidden;
+  position: absolute;
+  left: 10px; /* LTR */
+  text-indent: -9999px;
+  width: 24px;
+}
+
+/**
+ * Devel catcher menu.
+ */
+#devel_catcher div.devel_catcher-menu {
+  background: #000;
+  line-height: 20px;
+  padding: 5px 50px 5px 10px; /* LTR */
+  position: relative;
+}
+
+/**
+ * Collapsed drawer of additional toolbar content.
+ */
+#devel_catcher div.devel_catcher-drawer {
+  position: relative;
+  padding: 10px;
+  height: 300px;
+}
+
+#devel_catcher div.devel_catcher-snapshot {
+  margin-left: 35px;
+}
+
+#devel_catcher div.devel_catcher-snapshot div.dev-query {
+  background-color: transparent;
+  color: #eee;
+}
+
+/**
+ * Tabs.
+ */
+
+#devel_catcher div.devel_catcher-tab-handle a {
+  float: left;
+  margin-right: 8px;
+  height: 20px;
+  background: #eee;
+  padding: 8px;
+  color: #222;
+  font-weight: bold;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+#devel_catcher div.devel_catcher-tab-handle a:hover {
+  background: #e1e1e1;
+}
+
+#devel_catcher div.devel_catcher-tab-handle a.active {
+  background: #fff;
+}
+
+#devel_catcher div#devel_catcher-tabs {
+  clear: both;
+}
+
+/**
+ * Tab contents.
+ */
+#devel_catcher div.devel_catcher-tab {
+  height: 264px;
+  overflow-y: scroll;
+}
+
+#devel_catcher div.devel_catcher-tab .krumo-root {
+  margin-top: 0;
+  border-color: #fff;
+  color: #333;
+}
+
+#devel_catcher div#devel_catcher-tab-querylog {
+  background: #fff;
+}
+
+#devel_catcher .devel-querylog-filter {
+  padding: 6px;
+}
+
+#devel_catcher .devel-querylog-filter label {
+  color: #666;
+}
+
+#devel_catcher .devel-querylog-filter .querylog-filter-input {
+  margin-bottom: 5px;
+}
+
+#devel_catcher .devel-querylog-filter #querylog-search {
+  width: 250px;
+  border: 1px solid #aaa;
+  padding: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+#devel_catcher div.devel-querylog-header {
+  border-top: 0;
+}
+
+#devel_catcher div.devel-node_access-wrapper table {
+  background: #fff;
+  color: #333;
+  font-size: 11px;
+}
+
+#devel_catcher div.devel-node_access-wrapper table thead th {
+  padding: 1em 0.5em;
+}
+
+/**
+ * IE 6 Fix.
+ *
+ * IE 6 shows elements with position:fixed as position:static so we replace
+ * it with position:absolute; toolbar needs its z-index to stay above overlay.
+ */
+* html #devel_catcher {
+  left: -20px;
+  margin: 0;
+  padding-right: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+}
+
+#devel_catcher_positioner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 30px;
+  z-index: -1;
+}
