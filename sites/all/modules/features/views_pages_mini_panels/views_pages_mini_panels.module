@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Views, Pages, Mini Panels feature.
+ */
+
+include_once 'views_pages_mini_panels.features.inc';

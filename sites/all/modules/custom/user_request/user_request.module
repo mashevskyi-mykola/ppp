@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Implements hook_node_insert().
+ */
+function user_request_node_insert($info) {
+  if ($info->type == 'request') {
+
+  }
+}

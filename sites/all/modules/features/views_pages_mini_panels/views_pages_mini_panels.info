@@ -1,0 +1,11 @@
+name = Views, Pages, Mini Panels
+core = 7.x
+package = Features
+dependencies[] = ctools
+dependencies[] = page_manager
+dependencies[] = panels_mini
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = panels_mini:panels_default:1
+features[features_api][] = api:2
+features[page_manager_handlers][] = user_view__user_page
+features[panels_mini][] = user_info
